@@ -5,10 +5,11 @@ import openai
 # Regular expressions:
 import re
 import os
+import replicate
 
 # Set the OpenAI API key
 # openai.api_key = open("key.txt", "r").read().strip("\n")
-openai.api_key = "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"
+openai.api_key = "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"
 
 # Create a new Flask app and set the secret key
 app = Flask(__name__)
@@ -17,16 +18,19 @@ app.secret_key = "mysecretkey"
 # Define a function to generate an image using the OpenAI API
 def get_img(prompt):
     try:
+        output = replicate.run("stability-ai/stable-diffusion:db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf",
+                               input = prompt)
         response = openai.Image.create(
             prompt=prompt,
             n=1,
             size="512x512"
             )
-        img_url = response.data[0].url
+        print(output["items"]["format"])
+        # img_url = response.data[0].url
     except Exception as e:
         # if it fails (e.g. if the API detects an unsafe image), use a default image
         img_url = "https://pythonprogramming.net/static/images/imgfailure.png"
-    return img_url
+    return output["items"]["format"]
 
 
 # Define a function to generate a chat response using the OpenAI API
@@ -133,4 +137,4 @@ def home():
 
 # Run the Flask app
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(debug=True, port=5003)
